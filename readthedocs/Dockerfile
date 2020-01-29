@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PATH=/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     PYTHON=/venv/bin/python \
     PIP="/venv/bin/pip --disable-pip-version-check" \
-    RTD_REF=2.5.0
+    RTD_REF=3.11.4
 
 
 # Set locale to UTF-8
@@ -52,7 +52,7 @@ RUN wget -q --no-check-certificate -O - \
         https://github.com/rtfd/readthedocs.org/archive/${RTD_REF}.tar.gz | \
         tar -xzf - --strip-components 1 && \
     $PIP install -U -r $APPDIR/requirements/deploy.txt && \
-    $PIP install elasticsearch==1.7.0 && \
+    $PIP install 'elasticsearch>=6.0,<7.0.0' && \
     $PIP install git+https://github.com/rtfd/readthedocs-sphinx-ext.git
 
 ## Copy configuration, scripts and patch RTD

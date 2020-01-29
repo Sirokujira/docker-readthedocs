@@ -1,0 +1,22 @@
+diff --git a/readthedocs/builds/models.py b/readthedocs/builds/models.py
+index d88600190..a19cb3ec4 100644
+--- a/readthedocs/builds/models.py
++++ b/readthedocs/builds/models.py
+@@ -60,6 +60,7 @@ from readthedocs.builds.utils import (
+ from readthedocs.builds.version_slug import VersionSlugField
+ from readthedocs.config import LATEST_CONFIGURATION_VERSION
+ from readthedocs.core.utils import broadcast
++from readthedocs.core.resolver import resolve_path
+ from readthedocs.projects.constants import (
+     BITBUCKET_COMMIT_URL,
+     BITBUCKET_URL,
+@@ -300,6 +301,9 @@ class Version(models.Model):
+         )
+         return self.identifier
+ 
++    def get_url(self):
++        return resolve_path(self.project, version_slug=self.slug)
++
+     def get_absolute_url(self):
+         """Get absolute url to the docs of the version."""
+         # Hack external versions for now.
