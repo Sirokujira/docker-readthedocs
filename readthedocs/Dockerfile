@@ -37,7 +37,7 @@ RUN pip install wheel && pip install \
     supervisor
 
 # Setting up virtualenv
-RUN virtualenv --python=python3 venv && source venv/bin/activate
+RUN virtualenv --python=/usr/bin/python3 venv && source venv/bin/activate
 
 # Add user py
 RUN adduser --gecos 'py' --disabled-password py
