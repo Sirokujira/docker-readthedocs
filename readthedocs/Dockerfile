@@ -37,7 +37,7 @@ RUN pip install wheel && pip install \
     supervisor
 
 # Setting up virtualenv
-RUN virtualenv /venv
+RUN virtualenv --python=python3 /venv && source venv/bin/activate
 
 # Add user py
 RUN adduser --gecos 'py' --disabled-password py
@@ -51,6 +51,7 @@ WORKDIR $APPDIR
 RUN wget -q --no-check-certificate -O - \
         https://github.com/rtfd/readthedocs.org/archive/${RTD_REF}.tar.gz | \
         tar -xzf - --strip-components 1 && \
+    $PIP install -U pip && \
     $PIP install -U -r $APPDIR/requirements/deploy.txt && \
     $PIP install 'elasticsearch>=6.0,<7.0.0' && \
     $PIP install git+https://github.com/rtfd/readthedocs-sphinx-ext.git
