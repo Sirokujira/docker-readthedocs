@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LC_ALL=en_US.UTF-8 \
     VIRTUAL_ENV=/venv \
     PATH=/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-    PYTHON=/venv/bin/python \
+    PYTHON=/venv/bin/python3 \
     PIP="/venv/bin/pip --disable-pip-version-check" \
     RTD_REF=3.11.4
 
@@ -37,7 +37,7 @@ RUN pip install wheel && pip install \
     supervisor
 
 # Setting up virtualenv
-RUN virtualenv --python=/usr/bin/python3 venv && source venv/bin/activate
+RUN virtualenv venv && source venv/bin/activate
 
 # Add user py
 RUN adduser --gecos 'py' --disabled-password py
