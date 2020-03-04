@@ -14,7 +14,7 @@ services:
       - POSTGRES_USER=${DB_USER:-rtd}
       - POSTGRES_PASSWORD=${DB_PASS:-rtd}
 
-  search:
+  elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     environment:
       - discovery.type=single-node
@@ -31,13 +31,16 @@ services:
       - "6379"
 
   readthedocs:
-    build: ./readthedocs
-    image: readthedocs
+    build: 
+      context: ./readthedocs
+      args: 
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    #image: readthedocs
     ports:
       - "80:80"
     depends_on:
       - database
-      - search
+      - elasticsearch
       - redis
     volumes:
       - ./user_builds:/app/user_builds

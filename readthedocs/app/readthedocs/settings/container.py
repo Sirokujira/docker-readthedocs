@@ -29,18 +29,18 @@ class ContainerSettings(CommunityBaseSettings):
     # Cookies
     SESSION_COOKIE_DOMAIN = PRODUCTION_DOMAIN
 
-    AUTHENTICATION_BACKENDS = CommunityBaseSettings.AUTHENTICATION_BACKENDS + ('guardian.backends.ObjectPermissionBackend', )
+    AUTHENTICATION_BACKENDS = CommunityBaseSettings.AUTHENTICATION_BACKENDS
 
     # Elasticsearch
+    # Disable auto syncing elasticsearch documents in development
+    ELASTICSEARCH_DSL_AUTOSYNC = False
     if os.getenv('RTD_HAS_ELASTICSEARCH', 'false').lower() == 'true':
-        @property
-        def ES_HOSTS(self):  # noqa
-            return [
-                '{0}:{1}'.format(
-                    os.getenv('ELASTICSEARCH_HOST', 'elasticsearch'),
-                    os.getenv('ELASTICSEARCH_PORT', '9200')
-                )
-            ]
+        ELASTICSEARCH_DSL_AUTOSYNC = True
+        ELASTICSEARCH_DSL = {
+            'default': {
+                'hosts': 'elasticsearch:9200',
+            },
+        }
 
     @property
     def DATABASES(self):  # noqa
@@ -62,6 +62,12 @@ class ContainerSettings(CommunityBaseSettings):
                     'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
                 }
             }
+
+    DONT_HIT_DB = False
+    # Turn off email verification
+    ACCOUNT_EMAIL_VERIFICATION = os.getenv('RTD_ACCOUNT_EMAIL_VERIFICATION', 'none')
+    # Cookies
+    SESSION_COOKIE_DOMAIN = PRODUCTION_DOMAIN
 
     SLUMBER_USERNAME = os.getenv('RTD_SLUMBER_USERNAME', 'slumber')
     SLUMBER_PASSWORD = os.getenv('RTD_SLUMBER_PASSWORD', 'slumber')
@@ -104,9 +110,6 @@ class ContainerSettings(CommunityBaseSettings):
 
     GLOBAL_ANALYTICS_CODE = os.getenv('RTD_GLOBAL_ANALYTICS_CODE', '')
 
-    # Turn off email verification
-    ACCOUNT_EMAIL_VERIFICATION = os.getenv('RTD_ACCOUNT_EMAIL_VERIFICATION', 'none')
-
     # Enable private Git repositories
     ALLOW_PRIVATE_REPOS = os.getenv('RTD_ALLOW_PRIVATE_REPOS', 'false').lower() == 'true'
     SERVE_DOCS = ['private']
@@ -114,5 +117,7 @@ class ContainerSettings(CommunityBaseSettings):
     USE_PROMOS = False
     DO_NOT_TRACK_ENABLED = True
 
+    # Disable password validators on development
+    AUTH_PASSWORD_VALIDATORS = []
 
 ContainerSettings.load_settings(__name__)
