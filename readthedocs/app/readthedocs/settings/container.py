@@ -39,7 +39,7 @@ class ContainerSettings(CommunityBaseSettings):
         ELASTICSEARCH_DSL_AUTOSYNC = True
         ELASTICSEARCH_DSL = {
             'default': {
-                'hosts': 'search:9200',
+                'hosts': 'elasticsearch:9200',
             },
         }
 

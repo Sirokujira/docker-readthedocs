@@ -1,23 +1,20 @@
-FROM ubuntu:18.04
-#FROM continuumio/anaconda3
+#FROM ubuntu:18.04
+FROM readthedocs/build:latest
 LABEL maintainer='\
 Florian "floross" Rossiaud <o>, \
 Simon "svvac" Wachter <himself@swordofpain.net>, \
 Yevgeny Popovych <jmennius@gmail.com>'
 
-ARG GITHUB_TOKEN
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV APPDIR=/app
+ENV DJANGO_SETTINGS_MODULE=readthedocs.settings.container
+#ENV PYTHON=/usr/bin/python3
+ENV PYTHON=/venv/bin/python3
+ENV RTD_REF=3.11.6
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-ENV APPDIR /app
-ENV DJANGO_SETTINGS_MODULE readthedocs.settings.container
-#ENV PYTHON /usr/bin/python3
-ENV PYTHON /venv/bin/python3
-#ENV RTD_REF 3.11.6
-ENV RTD_REF 4.0.2
-#ENV READTHEDOCS 1
 
 # Set locale to UTF-8
 RUN apt-get -qq update && \
@@ -36,33 +33,22 @@ RUN apt-get -qq update && \
         wget \
         nginx
 
-#RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
-
-# Setting conda
-RUN wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-chmod +x Miniconda3-latest-Linux-x86_64.sh && \
-bash ./Miniconda3-latest-Linux-x86_64.sh -b -f -p /usr/local
-
-#RUN ln -s /usr/bin/python3 /usr/local/bin/python3.7
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install setuptools
 
 # Install test dependencies
 RUN python3 -m pip install wheel && \
-    pip install virtualenv && \
     python3 -m pip install supervisor
 
-RUN python3 -V
+RUN python -V
 
 # Setting up virtualenv
 RUN python3 -m venv venv && \
     . venv/bin/activate
 
-RUN ${PYTHON} -V
-RUN ${PYTHON} -m pip install virtualenv
-RUN pip install virtualenv
-
+RUN python -V
 
 # Install test dependencies
 RUN $PYTHON -m pip install wheel && \
@@ -86,12 +72,6 @@ RUN wget -q --no-check-certificate -O - \
     $PYTHON -m pip install -U celery>=4.3 && \
     $PYTHON -m pip install 'git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
 
-RUN if [ -n "$GITHUB_TOKEN" ] ; \
-        then \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
-        $PYTHON -m pip install --no-cache-dir -e readthedocs-ext ; \
-        fi
-
 ## Copy configuration, scripts and patch RTD
 COPY . /
 RUN find /patches -type f -exec patch -p1 -i {} \; && rm -rf /patches
@@ -106,6 +86,6 @@ RUN ln -s $APPDIR/manage.py $APPDIR/readthedocs/manage.py && \
 
 # Docker config
 EXPOSE 80
-VOLUME [ "$APPDIR/user_builds" ]
+VOLUME [ "/app/user_builds" ]
 
 CMD [ "supervisord", "-c", "/etc/supervisord.conf", "-n" ]
