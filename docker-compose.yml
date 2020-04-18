@@ -14,8 +14,11 @@ services:
       - POSTGRES_USER=${DB_USER:-rtd}
       - POSTGRES_PASSWORD=${DB_PASS:-rtd}
 
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
   search:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    user: "${UID}:${GID}"
+    #container_name: es01
     environment:
       - discovery.type=single-node
       - node.name=search
@@ -23,16 +26,23 @@ services:
     volumes:
       - ./es:/usr/share/elasticsearch/data
     expose:
-      - "9200"
-  
+      - 9200
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
   redis:
     image: redis:3.2.7
     expose:
       - "6379"
 
   readthedocs:
-    build: ./readthedocs
-    image: readthedocs
+    build: 
+      context: ./readthedocs
+      args: 
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    #image: readthedocs
+    #user: "${UID}:${GID}"
     ports:
       - "80:80"
     depends_on:
@@ -43,3 +53,10 @@ services:
       - ./user_builds:/app/user_builds
     env_file:
       - ${RTD_ENV_FILE:-example.env}
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-a}
+      - READTHEDOCS=1
+
+volumes:
+  es:
+    driver: local
