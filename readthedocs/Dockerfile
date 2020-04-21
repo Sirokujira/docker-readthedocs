@@ -15,7 +15,7 @@ ENV DJANGO_SETTINGS_MODULE=readthedocs.settings.container
 #ENV PYTHON=/usr/bin/python3
 ENV PYTHON=/venv/bin/python3
 #ENV RTD_REF=3.11.6
-ENV RTD_REF=4.0.3
+ENV RTD_REF=4.1.5
 #ENV READTHEDOCS 1
 
 # Set locale to UTF-8
@@ -30,26 +30,35 @@ RUN apt-get -qq update && \
         python-setuptools build-essential python-dev python-pip git libevent-dev \
         python3 python3-virtualenv python3-pip python3-dev \
         python3.6 python3.6-dev python3.6-venv python3-distutils \
+        #python3.7 python3.7-dev python3.7-venv python3-distutils \
         libpq-dev postgresql-client \
         libxml2-dev libxslt1-dev gettext texlive texlive-latex-extra \
         wget \
         nginx
 
+# Install conda
+#RUN wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+RUN wget -c https://repo.anaconda.com/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh && \
+#chmod +x Miniconda3-latest-Linux-x86_64.sh && \
+#bash ./Miniconda3-latest-Linux-x86_64.sh -b -f -p /usr/local
+chmod +x Miniconda3-4.5.4-Linux-x86_64.sh && \
+bash ./Miniconda3-4.5.4-Linux-x86_64.sh -b -f -p /usr/local
+
+RUN conda update conda -y
+
+# Setting Python?
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
-
-# Setting conda
-RUN wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-chmod +x Miniconda3-latest-Linux-x86_64.sh && \
-bash ./Miniconda3-latest-Linux-x86_64.sh -b -f -p /usr/local
-
+#RUN update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.7 1
 #RUN ln -s /usr/bin/python3 /usr/local/bin/python3.7
+# conda?(aceess ng)
+#RUN ls -s /usr/bin/python3 /usr/local/bin/python
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install setuptools
 
 # Install test dependencies
 RUN python3 -m pip install wheel && \
-    python3 -m install virtualenv && \
+    python3 -m pip install virtualenv && \
     python3 -m pip install supervisor
 
 RUN python3 -V
@@ -80,9 +89,9 @@ RUN wget -q --no-check-certificate -O - \
         https://github.com/rtfd/readthedocs.org/archive/${RTD_REF}.tar.gz | \
         tar -xzf - --strip-components 1 && \
     $PYTHON -m pip install -U -r $APPDIR/requirements/deploy.txt && \
-    #$PYTHON -m pip install -U GitPython>=3.0.8 && \
-    #$PYTHON -m pip install -U gitdb2>=3.0.2 && \
-    #$PYTHON -m pip install -U celery>=4.3 && \
+    $PYTHON -m pip install -U GitPython>=3.0.8 && \
+    $PYTHON -m pip install -U gitdb2>=3.0.2 && \
+    $PYTHON -m pip install -U celery>=4.3 && \
     $PYTHON -m pip install 'git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
 
 RUN if [ -n "$GITHUB_TOKEN" ] ; \
@@ -108,3 +117,5 @@ EXPOSE 80
 VOLUME [ "$APPDIR/user_builds" ]
 
 CMD [ "supervisord", "-c", "/etc/supervisord.conf", "-n" ]
+
+
