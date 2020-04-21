@@ -32,7 +32,7 @@ RUN apt-get -qq update && \
         python3.6 python3.6-dev python3.6-venv python3-distutils \
         #python3.7 python3.7-dev python3.7-venv python3-distutils \
         libpq-dev postgresql-client \
-        libxml2-dev libxslt1-dev gettext texlive texlive-latex-extra \
+        libxml2-dev libxslt1-dev gettext texlive texlive-latex-extra latexmk \
         wget \
         nginx
 
