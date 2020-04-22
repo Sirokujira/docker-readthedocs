@@ -98,6 +98,8 @@ class ContainerSettings(CommunityBaseSettings):
     BROKER_URL = 'redis://{0}:{1}/{2}'.format(_redis_host, _redis_port, _redis_db)
     CELERY_RESULT_BACKEND = 'redis://{0}:{1}/{2}'.format(_redis_host, _redis_port, _redis_db)
     CELERY_RESULT_SERIALIZER = 'json'
+    #CELERY_ALWAYS_EAGER = False
+    #CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
